@@ -1,0 +1,27 @@
+Metadata-Version: 2.1
+Name: python-ternary
+Version: 1.0.8
+Summary: Make ternary plots in python with matplotlib
+Home-page: https://github.com/marcharper/python-ternary
+Author: Marc Harper and contributors
+Author-email: marc.harper@gmail.com
+License: MIT
+Download-URL: https://github.com/marcharper/python-ternary/tarball/1.0.8
+Keywords: matplotlib ternary plotting
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Requires-Dist: matplotlib (>=2)
+
+python-ternary is a plotting library for use with matplotlib to make ternary
+plots, including heatmaps.
+
+
