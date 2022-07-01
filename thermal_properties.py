@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+import seaborn
 
 def find_outputs(directory_paths):
     filenames = []
@@ -25,7 +26,7 @@ def load_data(directory_list, remove_some_uneeded_values=True):
                         'container_volume', 'sample_mass', 'notes', 'apparatus'], axis=1, inplace=True)
     return file_data
 
-solid_density_values = {'Douglas-fir': 480,  # Values except wheat straw taken from Miles and Smith 2009
+solid_density_values = {'Douglas-fir': 510,  # Values except wheat straw taken from Miles and Smith 2009
                         'Douglas-fir Bark': 440,
                         'Oak': 600,
                         'Pine': 400,
@@ -61,6 +62,13 @@ if __name__ == '__main__':
     test_data = load_data(directories)
     test_data.loc[test_data['species'] == 'Oak Wood', 'species'] = 'Oak'
     mean_density_values = {groups[0]: groups[1]['density'].mean() for groups in test_data.groupby('species')}
+    mean_density_values = {'Douglas-fir': 74,
+                        'Douglas-fir Bark': 146,
+                        'Oak': 428,
+                        'Pine': 115,
+                        'Pine Bark': 172,
+                        'Wheat Straw': 85
+                        }
 
     alpha_values = dict()
     for key, bulk_density in mean_density_values.items():
@@ -72,8 +80,10 @@ if __name__ == '__main__':
         k_eff_max = epsilon * k_fluid + (1 - epsilon) * solid_k_values[key]
         # print(k_eff_min, k_eff_max, abs(k_eff_min-k_eff_max)/k_eff_min*100)
         k_bed = np.mean([k_eff_max, k_eff_min])
+        print(key, k_bed)
         # cp_bed = mean_density_values[f]/rho_solid*cp_solid
         cp_bed = epsilon * cp_fluid + (1 - epsilon) * solid_cp_values[key]
+        print(key, cp_bed)
         alpha = np.divide(k_bed, bed_density * cp_bed)
         alpha_min = np.divide(k_eff_min, bed_density * cp_bed)
         alpha_max = np.divide(k_eff_max, bed_density * cp_bed)

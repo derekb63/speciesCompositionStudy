@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import seaborn
 from adjustText import adjust_text
 import mpltern
 import matplotlib.pyplot as plt
@@ -96,6 +97,8 @@ def fuel_bed_flux(test_dataframe):
     return bed_flux
 
 
+model_results = {'Douglas-fir': 574, 'Pine': 634, 'Douglas-fir Bark': 800, 'Oak': 663, 'Wheat Straw': 800, 'Pine Bark': 800}
+
 if __name__ == '__main__':
     sns.set(font_scale=2.5)
     concentration_data = load_concentration_data()
@@ -119,124 +122,124 @@ if __name__ == '__main__':
         comp_temp['SAMPLE'] = comp_temp['SAMPLE'].value_counts().idxmax()
         comp_temp[['CELL', 'HCELL', 'LIG']] = comp_temp.mean()
         composition_values.loc[val] = comp_temp.iloc[0]
-
-    model_results = {}
-    for material_type in data.groupby(['material', 'wind_speed']):
-        try:
-            temp_model = fit_model(material_type[1]['temperature'].values, material_type[1]['ignition'].values)
-            model_results[material_type[0]] = get_probability(temp_model)
-        except ValueError:
-            pass
-    model_results.update({('Douglas-fir Bark', 0.1): 800,
-                          ('Wheat Straw', 0.1): 800,
-                          ('Douglas-fir Bark', 5.8): 800,
-                          ('Pine Bark', 5.8): 800})
-
-    # estimate the heat flux boundary condition at the p_50 temperature
-    flux_fit_coeffs = np.polyfit(test_data['mean_temperature'].astype(np.float),
-                                 test_data['bed_flux'].astype(np.float),
-                                 deg=2)
-    flux_bc_values = {key: int(np.polyval(flux_fit_coeffs, model_results[key])) for key in model_results}
-    x_column_name = 'temperature'
-    fig, axs = plt.subplots(nrows=2, ncols=1, sharex=True)
-    axs_ytwin = [ax.twinx() for ax in axs]
-    width = 8
-    fig.set_figwidth(width)
-    fig.set_figheight(width)
-    marker_s = 75
-    for num, item in enumerate(data.groupby('wind_speed')):
-        for temp_data in item[1].groupby(['material']):
-            wind_speed = temp_data[1]['wind_speed'].unique()[0]
-            material = temp_data[1]['material'].unique()[0]
-            # plot_data = temp_data[1].reset_index()
-            plot_data = temp_data[1]
-            plot_data = plot_data[['ignition', x_column_name]].astype('float')
-            series_label = '{0:.1f} (m/s),{1} '.format(wind_speed, material)
-            series_color = line_style_dict[wind_speed][1]
-            axs[num].grid(visible=True, linestyle='dotted', color='lightgray')
-            a = sns.regplot(x=x_column_name,
-                            y='ignition',
-                            data=plot_data,
-                            logistic=True,
-                            ax=axs[num],
-                            label=series_label,
-                            # scatter_kws={'s': marker_s, 'color': series_color},
-                            # line_kws={'linestyle': line_style_dict[wind_speed][0], 'color': series_color},
-                            ci=95)
-            axs_ytwin[num].set_ylabel(None)
-            axs[num].set_xlabel(None)
-            axs[num].set_ylabel(None)
-            # axs[num].title.set_text('{0:.0f}$^\circ$'.format(heater_lead_angle))
-    axs[1].set_ylabel('Ignition Probability')
-    axs_ytwin[1].set_ylabel('Test Outcome')
-    [ax.set_yticks([0.0, 1.0]) for ax in axs_ytwin]
-    [ax.set_yticks([1.0, 0.5, 0.0]) for ax in axs]
-    [x.set_yticklabels(["No Ignition", "Ignition"]) for x in axs_ytwin]
-    axs[-1].set_xlabel(r'Heater Temperature($^\circ$C)')
-    # axs[-1].set_xlabel(x_column_name.title().replace('_', " ")+'($^\circ$C)')
-    handles, labels = axs[-1].get_legend_handles_labels()
-    fig.legend(handles, labels, loc=10, bbox_to_anchor=(0.75, 0.825), facecolor='white', framealpha=1)
-    # fig.suptitle(heater_lead_angle)
-    fig.tight_layout()
-    # ternary_data = composition_values
-    # ternary_data['P50'] = pd.DataFrame.from_dict(model_results, orient='index')
     #
-    # ternary_data[['CELLn', 'HCELLn', 'LIGn']] = ternary_data[['CELL', 'HCELL', 'LIG']].div(ternary_data[['CELL', 'HCELL', 'LIG']].sum(axis=1), axis=0)
+    # model_results = {}
+    # for material_type in data.groupby(['material', 'wind_speed']):
+    #     try:
+    #         temp_model = fit_model(material_type[1]['temperature'].values, material_type[1]['ignition'].values)
+    #         model_results[material_type[0]] = get_probability(temp_model)
+    #     except ValueError:
+    #         pass
+    # model_results.update({('Douglas-fir Bark', 0.1): 800,
+    #                       ('Wheat Straw', 0.1): 800,
+    #                       ('Douglas-fir Bark', 5.8): 800,
+    #                       ('Pine Bark', 5.8): 800})
     #
-    # fig, axs = plt.subplots(nrows=1, ncols=1)
-    # width = 28
+    # # estimate the heat flux boundary condition at the p_50 temperature
+    # flux_fit_coeffs = np.polyfit(test_data['mean_temperature'].astype(np.float),
+    #                              test_data['bed_flux'].astype(np.float),
+    #                              deg=2)
+    # flux_bc_values = {key: int(np.polyval(flux_fit_coeffs, model_results[key])) for key in model_results}
+    # x_column_name = 'temperature'
+    # fig, axs = plt.subplots(nrows=2, ncols=1, sharex=True)
+    # axs_ytwin = [ax.twinx() for ax in axs]
+    # width = 8
     # fig.set_figwidth(width)
-    # fig.set_figheight(width * 9/21)
-    # marker_s = 128
+    # fig.set_figheight(width)
+    # marker_s = 75
+    # for num, item in enumerate(data.groupby('wind_speed')):
+    #     for temp_data in item[1].groupby(['material']):
+    #         wind_speed = temp_data[1]['wind_speed'].unique()[0]
+    #         material = temp_data[1]['material'].unique()[0]
+    #         # plot_data = temp_data[1].reset_index()
+    #         plot_data = temp_data[1]
+    #         plot_data = plot_data[['ignition', x_column_name]].astype('float')
+    #         series_label = '{0:.1f} (m/s),{1} '.format(wind_speed, material)
+    #         series_color = line_style_dict[wind_speed][1]
+    #         axs[num].grid(visible=True, linestyle='dotted', color='lightgray')
+    #         a = sns.regplot(x=x_column_name,
+    #                         y='ignition',
+    #                         data=plot_data,
+    #                         logistic=True,
+    #                         ax=axs[num],
+    #                         label=series_label,
+    #                         # scatter_kws={'s': marker_s, 'color': series_color},
+    #                         # line_kws={'linestyle': line_style_dict[wind_speed][0], 'color': series_color},
+    #                         ci=95)
+    #         axs_ytwin[num].set_ylabel(None)
+    #         axs[num].set_xlabel(None)
+    #         axs[num].set_ylabel(None)
+    #         # axs[num].title.set_text('{0:.0f}$^\circ$'.format(heater_lead_angle))
+    # axs[1].set_ylabel('Ignition Probability')
+    # axs_ytwin[1].set_ylabel('Test Outcome')
+    # [ax.set_yticks([0.0, 1.0]) for ax in axs_ytwin]
+    # [ax.set_yticks([1.0, 0.5, 0.0]) for ax in axs]
+    # [x.set_yticklabels(["No Ignition", "Ignition"]) for x in axs_ytwin]
+    # axs[-1].set_xlabel(r'Heater Temperature($^\circ$C)')
+    # # axs[-1].set_xlabel(x_column_name.title().replace('_', " ")+'($^\circ$C)')
+    # handles, labels = axs[-1].get_legend_handles_labels()
+    # fig.legend(handles, labels, loc=10, bbox_to_anchor=(0.75, 0.825), facecolor='white', framealpha=1)
+    # # fig.suptitle(heater_lead_angle)
+    # fig.tight_layout()
+    ternary_data = composition_values
+    ternary_data['P50'] = pd.DataFrame.from_dict(model_results, orient='index')
+
+    ternary_data[['CELLn', 'HCELLn', 'LIGn']] = ternary_data[['CELL', 'HCELL', 'LIG']].div(ternary_data[['CELL', 'HCELL', 'LIG']].sum(axis=1), axis=0)
+
+    fig, axs = plt.plot(projection='ternary')
+    width = 28
+    fig.set_figwidth(width)
+    fig.set_figheight(width * 9/21)
+    marker_s = 128
     # axs[1].axis('off')
-    # annotate_list = []
+    annotate_list = []
     # for temp_data in data.groupby(['material', 'wind_speed']):
     #     sns.regplot(x='temperature', y='ignition', data=temp_data[1], logistic=True, ax=axs, label=temp_data[0],
     #                 scatter_kws={'s': marker_s}, ci=95)
-    #     # axs[0].scatter(model_results[temp_data[0]], 0.5, label=temp_data[0] + ' P(0.5)', marker='x', s=marker_s)
-    #     # annotate_list.append(axs[0].annotate(model_results[temp_data[0]], (model_results[temp_data[0]], 0.5),
-    #     #                      horizontalalignment='left', verticalalignment='top'))
-    # # adjust_text(annotate_list)
-    #     # sns.regplot(x='temperature', y='ignition', data=pine, logistic=True, ax=axs[0], label='Pine')
-    # # axs[0].scatter(df_50, 0.5, label='Douglas-fir P(0.5)')
-    # # axs[0].scatter(pine_50, 0.5, label='Pine P(0.5)')
-    # # axs[0].annotate(df_50, (df_50, 0.5), horizontalalignment='left', verticalalignment='top')
-    # # axs[0].annotate(pine_50, (pine_50, 0.5), horizontalalignment='left', verticalalignment='top')
+        # axs[0].scatter(model_results[temp_data[0]], 0.5, label=temp_data[0] + ' P(0.5)', marker='x', s=marker_s)
+        # annotate_list.append(axs[0].annotate(model_results[temp_data[0]], (model_results[temp_data[0]], 0.5),
+        #                      horizontalalignment='left', verticalalignment='top'))
+    # adjust_text(annotate_list)
+        # sns.regplot(x='temperature', y='ignition', data=pine, logistic=True, ax=axs[0], label='Pine')
+    # axs[0].scatter(df_50, 0.5, label='Douglas-fir P(0.5)')
+    # axs[0].scatter(pine_50, 0.5, label='Pine P(0.5)')
+    # axs[0].annotate(df_50, (df_50, 0.5), horizontalalignment='left', verticalalignment='top')
+    # axs[0].annotate(pine_50, (pine_50, 0.5), horizontalalignment='left', verticalalignment='top')
     # axs.set_ylabel('Test Outcome')
     # axs.set_yticks([1.0, 0.0])
     # axs.set_yticklabels(["Ignition", "No Ignition"])
     # axs.set_xlabel('Heater Setpoint ($^{\circ}$C)')
     # axs.legend()
     #
-    # axs_2 = fig.add_subplot(122, projection='ternary')
-    # pc = axs_2.scatter(ternary_data['CELLn'],
-    #                    ternary_data['HCELLn'],
-    #                    ternary_data['LIGn'])
-    #                    # c=ternary_data['P50'], cmap='copper', s=marker_s)
-    #
-    # scatter_text = []
-    # for row in ternary_data.iterrows():
-    #     i = row[1]
-    #     scatter_text.append(axs_2.text(i['CELL'], i['HCELL'], i['LIG'], row[0],
-    #                                    horizontalalignment='center', verticalalignment='top'))
-    # adjust_text(scatter_text)
-    # # adjust_text(scatter_text, arrowprops=dict(arrowstyle='->', color='black'))
-    # # ternary_data.apply(lambda i: axs_2.text(i['CELL'],
-    # #                  i['HCELL'],
-    # #                  i['LIG'],
-    # #                  i['SAMPLE']+''+i['ORGAN FRACTION'],
-    # #                  horizontalalignment='center', verticalalignment='top',fontsize=12), axis=1)
-    # cax = axs_2.inset_axes([1.05, 0.1, 0.05, 0.9], transform=axs_2.transAxes)
-    # axs_2.set_tlabel('Cellulose')
-    # axs_2.set_llabel('Hemi-Cellulose')
-    # axs_2.set_rlabel('Lignin')
-    # axs_2.taxis.set_label_position('tick1')
-    # axs_2.laxis.set_label_position('tick1')
-    # axs_2.raxis.set_label_position('tick1')
-    # colorbar = fig.colorbar(pc, cax=cax)
-    # colorbar.set_label('P$_{50}$ ($^{\circ}$C)', rotation=270, va='baseline')
-    # plt.show()
-    # plt.tight_layout()
+    # axs_2 = fig.add_subplot(111, projection='ternary')
+    pc = axs.scatter(ternary_data['CELLn'],
+                       ternary_data['HCELLn'],
+                       ternary_data['LIGn'])
+                       # c=ternary_data['P50'], cmap='copper', s=marker_s)
+
+    scatter_text = []
+    for row in ternary_data.iterrows():
+        i = row[1]
+        scatter_text.append(axs.text(i['CELL'], i['HCELL'], i['LIG'], row[0],
+                                       horizontalalignment='center', verticalalignment='top'))
+    adjust_text(scatter_text)
+    # adjust_text(scatter_text, arrowprops=dict(arrowstyle='->', color='black'))
+    # ternary_data.apply(lambda i: axs_2.text(i['CELL'],
+    #                  i['HCELL'],
+    #                  i['LIG'],
+    #                  i['SAMPLE']+''+i['ORGAN FRACTION'],
+    #                  horizontalalignment='center', verticalalignment='top',fontsize=12), axis=1)
+    cax = axs.inset_axes([1.05, 0.1, 0.05, 0.9], transform=axs.transAxes)
+    axs.set_tlabel('Cellulose')
+    axs.set_llabel('Hemi-Cellulose')
+    axs.set_rlabel('Lignin')
+    axs.taxis.set_label_position('tick1')
+    axs.laxis.set_label_position('tick1')
+    axs.raxis.set_label_position('tick1')
+    colorbar = fig.colorbar(pc, cax=cax)
+    colorbar.set_label('P$_{50}$ ($^{\circ}$C)', rotation=270, va='baseline')
+    plt.show()
+    plt.tight_layout()
     # #
     # # fig_test_2 = go.Figure(go.Scatterternary({
     # #     'mode': 'markers',

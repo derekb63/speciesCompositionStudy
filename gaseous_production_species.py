@@ -6,6 +6,7 @@ import plotly.express as px
 import time
 import cantera as ct
 import numpy as np
+import seaborn
 from plotly.subplots import make_subplots
 from plotly import graph_objects as go
 from logit_response_plots import load_concentration_data
@@ -276,6 +277,12 @@ if __name__ == '__main__':
     # test_results['ignition'] = ~test_results['time_to_ignition'].isna()
     # # Group the data based on the species and ignition
     # density_values = test_results.groupby('species').density.mean()
+    composition_values = composition_values.rename(index={'Douglas-fir': 'Douglas Fir Untreated Wood',
+                                                  'Douglas-fir Bark': 'Douglas Fir Bark',
+                                                  'Oak': 'Oak Untreated Wood',
+                                                  'Pine': 'Pine Untreated Wood',
+                                                  'Wheat Straw': 'Wheat Straw'})
+    composition_values.to_csv('/home/derek/PycharmProjects/speciesCompositionStudy/material_composition.csv')
     density_values = density_values.rename(index={'Douglas-fir': 'Douglas Fir Untreated Wood',
                                                   'Douglas-fir Bark': 'Douglas Fir Bark',
                                                   'Oak': 'Oak Untreated Wood',

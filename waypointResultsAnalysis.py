@@ -25,7 +25,7 @@ if __name__ == "__main__":
     results['P50'] = database_values.loc[results.index]['P50']
 
     fig, axs = plt.subplots(nrows=1, ncols=1)
-    width = 16
+    width = 10
     fig.set_figwidth(width)
     fig.set_figheight(width * 3 / 4)
     axs.axis('off')
@@ -35,24 +35,25 @@ if __name__ == "__main__":
                        database_values['HCELLn'],
                        database_values['LIGn'],
                        c=database_values['P50'], cmap='copper',
-                       s=156, label='Database')
-    pc2 = axs_2.scatter(results['CELLn'],
-                        results['HCELLn'],
-                        results['LIGn'],
-                        marker='s',
-                        c=results['P50'], cmap='copper',
-                        s=156, label='Tested')
+                       s=156)
+    axs_2.grid(visible=True, linestyle='dotted', color='gray')
+    # pc2 = axs_2.scatter(results['CELLn'],
+    #                     results['HCELLn'],
+    #                     results['LIGn'],
+    #                     marker='s',
+    #                     c=results['P50'], cmap='copper',
+    #                     s=156, label='Tested')
 
-    for name, row in results.iterrows():
-        origin = [database_values.loc[name]['CELLn'],
-                  database_values.loc[name]['HCELLn'],
-                  database_values.loc[name]['LIGn']]
-        destination = [row['CELLn'], row['HCELLn'], row['LIGn']]
-        quiver_lines = axs_2.quiver(*origin, *destination)
-        quiver_lines.scale = 1
-        quiver_lines.units = 'xy'
-        quiver_lines.width = 0.005
-        quiver_lines.color = 'r'
+    # for name, row in results.iterrows():
+    #     origin = [database_values.loc[name]['CELLn'],
+    #               database_values.loc[name]['HCELLn'],
+    #               database_values.loc[name]['LIGn']]
+    #     destination = [row['CELLn'], row['HCELLn'], row['LIGn']]
+    #     quiver_lines = axs_2.quiver(*origin, *destination)
+    #     quiver_lines.scale = 1
+    #     quiver_lines.units = 'xy'
+    #     quiver_lines.width = 0.005
+    #     quiver_lines.color = 'r'
     scatter_text = []
     for name, row in database_values.iterrows():
         scatter_text.append(axs_2.text(row['CELLn'], row['HCELLn'], row['LIGn'], name,
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     axs_2.taxis.set_label_position('tick1')
     axs_2.laxis.set_label_position('tick1')
     axs_2.raxis.set_label_position('tick1')
-    axs_2.legend()
+    # axs_2.legend()
     colorbar = fig.colorbar(pc, cax=cax)
     colorbar.set_label('P$_{50}$ ($^{\circ}$C)', rotation=270, va='baseline')
     plt.show()
